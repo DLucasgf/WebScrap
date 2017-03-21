@@ -321,6 +321,14 @@ app.get('/researchProfile', function(req, res) {
 })
 
 
+app.get('/scielo', function(req, res) {
+  scielo.test();
+  scielo.sum(1, 2);
+
+  res.send('test?');
+})
+
+
 
 
 
