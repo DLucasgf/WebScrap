@@ -322,10 +322,88 @@ app.get('/researchProfile', function(req, res) {
 
 
 app.get('/scielo', function(req, res) {
-  scielo.test();
-  scielo.sum(1, 2);
 
-  res.send('test?');
+  //url = 'http://search.scielo.org/?q=informa%E7%E3o&where=ORG';
+  url = 'http://www.google.com';
+  var nameTest = '';
+
+  request(url, function(error, response, html) {
+    console.log('inicio');
+    if(!error) {
+      //var $ = cheerio.load(html);
+      var $ = cheerio.load(scielo.scieloListResults());
+
+      var title, release, rating,
+          articleUrl, title, authors = [], journal;
+      var json;
+
+      //$('.title_wrapper').filter(function() {
+      $('.results').filter(function( index, element ) {
+        var data = $(this);
+
+        json = {
+                      articleUrl : "",
+                      title : "",
+                      authors : [],
+                      journal : ""
+                    };
+
+        //title = data.children().first().text().trim();
+        base = element;
+
+        //profileUrl = element.attribs.href;
+        articleUrl = element.children[0].next.children[1].next.next.children[2].next.children[3].attribs['href'];
+        title = element.children[0].next.children[1].next.next.children[2].next.children[3].attribs['title'];
+        journal = element.children[0].next.children[1].next.next.children[12].children[1].children[0].children[0].data;
+
+
+        var authorsResult = element.children[0].next.children[1].next.next.children[9].children;
+        for(var x in authorsResult) {
+          if(typeof authorsResult[x].attribs !== 'undefined') {
+            authors.push(authorsResult[x].children[0].data);
+            //console.log(authorsResult[x].children[0].data);
+          }
+        }
+/*
+        for (var i = 0, len = authorsResult.length; i < len; i++) {
+          authors.push('a' + i);
+        }*/
+
+        //console.log('log: ' + title);
+        console.log('objeto');
+        console.log(element);
+
+        //console.log('base');
+        //console.log(base);
+
+        console.log('name *****************************************************************************************');
+        console.log(journal);
+
+        //json.profileUrl = 'https://www.researchgate.net/' + profileUrl;
+        json.articleUrl = articleUrl;
+        json.title = title;
+        json.authors = authors;
+        json.journal = journal;
+        //json.title = 'lol';
+        nameTest = title;
+
+        fs.writeFile('scieloList/output_' + nameTest.replace(/[^a-zA-Z\s]/g,"").replace(/[\s]/g,"-") + '.json', JSON.stringify(json, null, 4), function(err) {
+          console.log('Arquivo salvo');
+        })
+
+      })
+
+
+    }
+    else {
+      console.log('else');
+    }
+
+
+  })
+
+  res.send('Scielo test: ' + nameTest);
+
 })
 
 
